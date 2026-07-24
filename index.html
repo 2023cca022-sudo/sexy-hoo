@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+  <title>Reflex, Aim & Acne Arcade</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-yellow: #f59e0b;
+      --text: #f8fafc;
+      --skin: #ffd9b3;
+      --skin-shade: #f4bd85;
+      --blush: #ff6b81;
+      --blush-dark: #e14a63;
+      --plum: #3a2e39;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-family: 'Gaegu', cursive, sans-serif;
+      font-size: 2.8rem;
+      background: linear-gradient(to right, #818cf8, #c084fc, #ff6b81);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+
+    p.subtitle {
+      color: #94a3b8;
+      font-size: 0.95rem;
+    }
+
+    /* 네비게이션 탭 */
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: rgba(30, 41, 59, 0.7);
+      padding: 6px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: transparent;
+      color: #94a3b8;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background-color: var(--primary);
+      color: white;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+    }
+
+    /* 공통 컨테이너 */
+    .main-card {
+      width: 100%;
+      max-width: 520px;
+      background-color: var(--card-bg);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .game-screen {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    /* 반응속도 & 에임 게임 영역 */
+    .arcade-stage {
+      width: 100%;
+      height: 380px;
+      background-color: #0b1120;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .arcade-stage.state-waiting { background-color: var(--accent-red); }
+    .arcade-stage.state-ready { background-color: var(--accent-green); }
+    .arcade-stage.state-early { background-color: var(--accent-yellow); color: #1e293b; }
+
+    .game-text {
+      font-size: 1.4rem;
+      font-weight: bold;
+      text-align: center;
+      padding: 0 20px;
+      line-height: 1.4;
+      white-space: pre-line;
+    }
+
+    .aim-target {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      background: radial-gradient(circle, #f43f5e 30%, #e11d48 100%);
+      border: 3px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(244, 63, 94, 0.8);
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    /* 서우 여드름 챌린지 영역 */
+    .hud {
+      width: 100%;
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .pill {
+      flex: 1;
+      background: #0b1120;
+      border-radius: 12px;
+      padding: 8px 4px;
+      text-align: center;
+    }
+
+    .pill .num {
+      font-family: 'Gaegu', cursive;
+      font-size: 22px;
+      font-weight: 700;
+      display: block;
+      color: var(--blush);
+    }
+
+    .pill .lbl {
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .acne-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      border-radius: 16px;
+      overflow: hidden;
+      background: linear-gradient(180deg, #fff3e2, #ffe6c9);
+    }
+
+    .face { position: absolute; inset: 0; z-index: 1; }
+    .head {
+      position: absolute; left: 50%; top: 56%; transform: translate(-50%,-50%);
+      width: 64%; aspect-ratio: 1/1.02; background: var(--skin);
+      border-radius: 48% 48% 42% 42% / 54% 54% 44% 44%;
+    }
+    .ear { position: absolute; top: 50%; width: 9%; aspect-ratio: 1/1.3; background: var(--skin); border-radius: 50%; z-index: -1; }
+    .ear.l { left: 15.5%; } .ear.r { right: 15.5%; }
+    .neck { position: absolute; left: 50%; bottom: 7%; transform: translateX(-50%); width: 22%; height: 12%; background: var(--skin-shade); }
+    .hair-wrap {
+      position: absolute; left: 50%; top: 7%; transform: translateX(-50%); width: 78%; aspect-ratio: 1/1.02;
+      clip-path: polygon(0% 34%, 6% 17%, 16% 6%, 30% 1%, 44% 5%, 50% 15%, 56% 5%, 70% 1%, 84% 6%, 94% 17%, 100% 34%, 100% 58%, 90% 47%, 82% 60%, 73% 44%, 64% 58%, 55% 41%, 46% 57%, 37% 41%, 28% 58%, 19% 44%, 10% 60%, 2% 47%);
+    }
+    .hair-base { position: absolute; inset: 0; background: linear-gradient(150deg, #0e0e0e, #262626 60%, #0e0e0e); }
+    .brow { position: absolute; top: 47%; width: 10.5%; height: 3%; background: #161616; border-radius: 3px; }
+    .brow.l { left: 30%; transform: rotate(-3deg); } .brow.r { right: 30%; transform: rotate(3deg); }
+    .eye { position: absolute; top: 53%; width: 6.5%; aspect-ratio: 1/1.25; background: var(--plum); border-radius: 50%; }
+    .eye.l { left: 35.5%; } .eye.r { right: 35.5%; }
+    .mouth { position: absolute; left: 50%; top: 75.5%; transform: translateX(-50%); width: 13%; height: 2.6%; border-bottom: 4px solid var(--plum); border-radius: 0 0 40% 40%; }
+    .tshirt { position: absolute; left: 50%; bottom: -3%; transform: translateX(-50%); width: 84%; height: 16%; background: #1c1c1c; border-radius: 45% 45% 0 0; z-index: 2; }
+
+    .pimple {
+      position: absolute; transform: translate(-50%,-50%); border-radius: 50%;
+      background: #c98652; border: 3px solid #8c5a2e; box-shadow: 0 2px 5px rgba(0,0,0,.25);
+      cursor: pointer; z-index: 5;
+    }
+
+    /* 폼 요소 및 버튼 */
+    .input-group { width: 100%; margin-bottom: 12px; }
+    label { font-size: 0.85rem; color: #a5b4fc; font-weight: bold; margin-bottom: 6px; display: block; }
+    textarea {
+      width: 100%; height: 70px; background: #0b1120; border: 1px solid #334155;
+      border-radius: 10px; color: #fff; padding: 10px; font-family: inherit; resize: none;
+    }
+    textarea:focus { outline: none; border-color: var(--primary); }
+
+    .btn {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      background-color: var(--primary); color: white; font-weight: bold;
+      font-size: 1rem; cursor: pointer; transition: background-color 0.2s;
+    }
+    .btn:hover { background-color: var(--primary-hover); }
+
+    /* AI 피드백 컴포넌트 */
+    .ai-box {
+      width: 100%; max-width: 520px; margin-top: 16px; padding: 14px 18px;
+      background-color: #1e1b4b; border: 1px solid #4338ca; border-radius: 14px; display: none;
+    }
+    .ai-title { font-size: 0.85rem; color: #a5b4fc; font-weight: bold; margin-bottom: 4px; }
+    .ai-content { font-size: 0.9rem; line-height: 1.5; color: #e0e7ff; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Reflex & Acne Arcade</h1>
+    <p class="subtitle">반응속도, 에임 측정 및 AI 맞춤 여드름 챌린지</p>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchMode('reaction')">⚡ 반응속도</button>
+    <button class="tab-btn" onclick="switchMode('aim')">🎯 에임 테스트</button>
+    <button class="tab-btn" onclick="switchMode('acne')">🌋 여드름 짜기</button>
+  </div>
+
+  <main class="main-card">
+    <!-- MODE 1 & 2: Arcade Stage (Reaction & Aim) -->
+    <div id="arcadeScreen" class="game-screen">
+      <div id="arcadeStage" class="arcade-stage">
+        <div id="gameText" class="game-text">클릭하여 반응속도 테스트 시작</div>
+        <div id="aimTarget" class="aim-target"></div>
+      </div>
+    </div>
+
+    <!-- MODE 3: Acne Challenge Screen -->
+    <div id="acneScreen" class="game-screen" hidden>
+      <!-- Setup Screen -->
+      <div id="acneSetup" style="width: 100%;">
+        <div class="input-group">
+          <label for="acnePrompt">오늘의 여드름 컨디션을 AI에게 알려주세요</label>
+          <textarea id="acnePrompt" placeholder="예) 이마에 여드름이 많이 나고 볼에는 몇 개만 있게 해줘"></textarea>
+        </div>
+        <button id="startAcneBtn" class="btn" onclick="startAcneGame()">AI 여드름 생성 & 게임 시작</button>
+      </div>
+
+      <!-- Play Screen -->
+      <div id="acnePlay" style="width: 100%;" hidden>
+        <div class="hud">
+          <div class="pill"><span id="acneTime" class="num">30</span><span class="lbl">남은시간</span></div>
+          <div class="pill"><span id="acneScore" class="num">0</span><span class="lbl">터트린 개수</span></div>
+        </div>
+        <div id="acneStage" class="acne-stage">
+          <div class="face">
+            <div class="ear l"></div><div class="ear r"></div><div class="neck"></div>
+            <div class="head"></div>
+            <div class="hair-wrap"><div class="hair-base"></div></div>
+            <div class="brow l"></div><div class="brow r"></div>
+            <div class="eye l"></div><div class="eye r"></div>
+            <div class="mouth"></div><div class="tshirt"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- AI Feedback Box -->
+  <div id="aiBox" class="ai-box">
+    <div class="ai-title">🤖 Gemini AI 피드백</div>
+    <div id="aiContent" class="ai-content">분석 중...</div>
+  </div>
+
+  <script>
+    let currentMode = 'reaction'; // 'reaction' | 'aim' | 'acne'
+
+    // Reaction & Aim Variables
+    let reactionState = 'idle';
+    let reactionTimer = null;
+    let reactionStartTime = 0;
+
+    let aimScore = 0;
+    let aimTimeLeft = 10;
+    let aimInterval = null;
+
+    // Acne Variables
+    let acneScore = 0;
+    let acneTimeLeft = 30;
+    let acneTimer = null;
+
+    // DOM Elements
+    const arcadeScreen = document.getElementById('arcadeScreen');
+    const acneScreen = document.getElementById('acneScreen');
+    const arcadeStage = document.getElementById('arcadeStage');
+    const gameText = document.getElementById('gameText');
+    const aimTarget = document.getElementById('aimTarget');
+    const acneSetup = document.getElementById('acneSetup');
+    const acnePlay = document.getElementById('acnePlay');
+    const acneStage = document.getElementById('acneStage');
+    const acnePrompt = document.getElementById('acnePrompt');
+    const acneTimeDisplay = document.getElementById('acneTime');
+    const acneScoreDisplay = document.getElementById('acneScore');
+    const aiBox = document.getElementById('aiBox');
+    const aiContent = document.getElementById('aiContent');
+
+    // Tab Switch Logic
+    function switchMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', 
+          (mode === 'reaction' && idx === 0) || 
+          (mode === 'aim' && idx === 1) || 
+          (mode === 'acne' && idx === 2)
+        );
+      });
+
+      arcadeScreen.hidden = (mode === 'acne');
+      acneScreen.hidden = (mode !== 'acne');
+      
+      resetAll();
+    }
+
+    function resetAll() {
+      clearTimeout(reactionTimer);
+      clearInterval(aimInterval);
+      clearInterval(acneTimer);
+
+      arcadeStage.className = 'arcade-stage';
+      aimTarget.style.display = 'none';
+      aiBox.style.display = 'none';
+
+      if (currentMode === 'reaction') {
+        reactionState = 'idle';
+        gameText.innerText = '클릭하여 반응속도 테스트 시작';
+      } else if (currentMode === 'aim') {
+        gameText.innerText = '클릭하여 10초 에임 테스트 시작';
+      } else if (currentMode === 'acne') {
+        acneSetup.hidden = false;
+        acnePlay.hidden = true;
+      }
+    }
+
+    // Arcade Stage Click Event
+    arcadeStage.addEventListener('click', (e) => {
+      if (currentMode === 'reaction') {
+        handleReactionClick();
+      } else if (currentMode === 'aim' && !aimInterval && e.target !== aimTarget) {
+        startAimTest();
+      }
+    });
+
+    // --- 1. Reaction Logic ---
+    function handleReactionClick() {
+      if (reactionState === 'idle') {
+        reactionState = 'waiting';
+        arcadeStage.classList.add('state-waiting');
+        gameText.innerText = '초록색으로 바뀌면 클릭하세요!';
+        
+        const randomDelay = Math.floor(Math.random() * 3000) + 2000;
+        reactionTimer = setTimeout(() => {
+          reactionState = 'ready';
+          arcadeStage.className = 'arcade-stage state-ready';
+          gameText.innerText = '지금 클릭하세요!';
+          reactionStartTime = Date.now();
+        }, randomDelay);
+
+      } else if (reactionState === 'waiting') {
+        clearTimeout(reactionTimer);
+        reactionState = 'idle';
+        arcadeStage.className = 'arcade-stage state-early';
+        gameText.innerText = '너무 빨랐습니다!\n다시 클릭하여 시도하세요.';
+
+      } else if (reactionState === 'ready') {
+        const reactionTime = Date.now() - reactionStartTime;
+        reactionState = 'idle';
+        arcadeStage.className = 'arcade-stage';
+        gameText.innerText = `반응속도: ${reactionTime} ms\n(다시 하려면 클릭)`;
+        
+        fetchAIFeedback({ reactionTime, mode: 'reaction' });
+      }
+    }
+
+    // --- 2. Aim Test Logic ---
+    function startAimTest() {
+      aimScore = 0;
+      aimTimeLeft = 10;
+      gameText.innerText = '';
+      moveAimTarget();
+      aimTarget.style.display = 'block';
+
+      aimInterval = setInterval(() => {
+        aimTimeLeft--;
+        if (aimTimeLeft <= 0) {
+          endAimTest();
+        }
+      }, 1000);
+    }
+
+    aimTarget.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (aimTimeLeft > 0) {
+        aimScore++;
+        moveAimTarget();
+      }
+    });
+
+    function moveAimTarget() {
+      const rect = arcadeStage.getBoundingClientRect();
+      const x = Math.random() * (rect.width - 60) + 30;
+      const y = Math.random() * (rect.height - 60) + 30;
+      aimTarget.style.left = `${x}px`;
+      aimTarget.style.top = `${y}px`;
+    }
+
+    function endAimTest() {
+      clearInterval(aimInterval);
+      aimInterval = null;
+      aimTarget.style.display = 'none';
+      gameText.innerText = `시간 종료!\n최종 점수: ${aimScore} 개\n(다시 하려면 클릭)`;
+
+      fetchAIFeedback({ aimScore, mode: 'aim' });
+    }
+
+    // --- 3. Acne Challenge Logic ---
+    async function startAcneGame() {
+      const btn = document.getElementById('startAcneBtn');
+      btn.disabled = true;
+      btn.innerText = "AI가 여드름 생성 중...";
+
+      const promptText = acnePrompt.value.trim() || "얼굴 전체에 골고루 15개";
+      let spots = [];
+
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt: promptText, mode: 'acne' })
+        });
+        const data = await res.json();
+        spots = data.spots || generateFallbackSpots();
+      } catch (err) {
+        spots = generateFallbackSpots();
+      }
+
+      btn.disabled = false;
+      btn.innerText = "AI 여드름 생성 & 게임 시작";
+
+      // Start Acne Game
+      acneSetup.hidden = true;
+      acnePlay.hidden = false;
+      
+      acneScore = 0;
+      acneTimeLeft = 30;
+      acneScoreDisplay.innerText = acneScore;
+      acneTimeDisplay.innerText = acneTimeLeft;
+
+      // Render Pimples
+      acneStage.querySelectorAll('.pimple').forEach(p => p.remove());
+      spots.forEach(spot => {
+        const pimple = document.createElement('div');
+        pimple.className = 'pimple';
+        pimple.style.width = '24px';
+        pimple.style.height = '24px';
+        pimple.style.left = `${spot.x}%`;
+        pimple.style.top = `${spot.y}%`;
+        
+        pimple.addEventListener('click', () => {
+          acneScore++;
+          acneScoreDisplay.innerText = acneScore;
+          pimple.remove();
+        });
+
+        acneStage.appendChild(pimple);
+      });
+
+      // Timer
+      acneTimer = setInterval(() => {
+        acneTimeLeft--;
+        acneTimeDisplay.innerText = acneTimeLeft;
+        if (acneTimeLeft <= 0) {
+          clearInterval(acneTimer);
+          alert(`게임 종료! 총 ${acneScore}개의 여드름을 짜냈습니다.`);
+          fetchAIFeedback({ acneScore, mode: 'acne' });
+        }
+      }, 1000);
+    }
+
+    function generateFallbackSpots() {
+      const fallback = [];
+      for (let i = 0; i < 15; i++) {
+        fallback.push({
+          x: Math.floor(Math.random() * 40) + 30,
+          y: Math.floor(Math.random() * 50) + 25
+        });
+      }
+      return fallback;
+    }
+
+    // --- Gemini API Call ---
+    async function fetchAIFeedback(payload) {
+      aiBox.style.display = 'block';
+      aiContent.innerText = '🤖 AI가 결과를 분석 중입니다...';
+
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (data.result) {
+          aiContent.innerText = data.result;
+        } else {
+          aiContent.innerText = '피드백을 불러오지 못했습니다.';
+        }
+      } catch (err) {
+        aiContent.innerText = '오류 발생: AI 피드백을 연결할 수 없습니다.';
+      }
+    }
+  </script>
+</body>
+</html>
