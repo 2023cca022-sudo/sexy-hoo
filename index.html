@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reflex & Aim Lab (서우 피부과 Arcade)</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --primary: #6366f1;
+      --accent-green: #10b981;
+      --accent-red: #ef4444;
+      --accent-yellow: #f59e0b;
+      --text: #f8fafc;
+      --skin: #ffd9b3;
+      --skin-shade: #f4bd85;
+      --blush-dark: #e14a63;
+      --plum: #3a2e39;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      background: linear-gradient(to right, #818cf8, #c084fc, #ff6b81);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .tab-btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--card-bg);
+      color: #94a3b8;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background-color: var(--primary);
+      color: white;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .game-container {
+      width: 100%;
+      max-width: 650px;
+      height: 440px;
+      background-color: var(--card-bg);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .state-waiting { background-color: var(--accent-red); }
+    .state-ready { background-color: var(--accent-green); }
+    .state-early { background-color: var(--accent-yellow); color: #1e293b; }
+
+    .game-text {
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-align: center;
+      padding: 0 20px;
+      line-height: 1.5;
+      z-index: 10;
+    }
+
+    .ai-input-panel {
+      width: 100%;
+      max-width: 650px;
+      margin-bottom: 15px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ai-input-panel label {
+      font-size: 0.9rem;
+      color: #a5b4fc;
+      font-weight: 600;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .ai-input-panel input {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid #4338ca;
+      background-color: #1e1b4b;
+      color: #f8fafc;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .ai-input-panel input:focus {
+      border-color: #818cf8;
+    }
+
+    .apply-btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: var(--primary);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .face-bg {
+      position: absolute;
+      inset: 0;
+      display: none;
+      pointer-events: none;
+      background: linear-gradient(180deg, #2a2238, #1e1926);
+    }
+
+    .head {
+      position: absolute; left: 50%; top: 54%; transform: translate(-50%,-50%);
+      width: 52%; height: 68%; background: var(--skin);
+      border-radius: 48% 48% 42% 42% / 54% 54% 44% 44%;
+    }
+    .ear { position: absolute; top: 50%; width: 7%; height: 12%; background: var(--skin); border-radius: 50%; }
+    .ear.l { left: 21%; } .ear.r { right: 21%; }
+    .neck { position: absolute; left: 50%; bottom: 8%; transform: translateX(-50%); width: 18%; height: 14%; background: var(--skin-shade); }
+    .hair-wrap {
+      position: absolute; left: 50%; top: 12%; transform: translateX(-50%); width: 62%; height: 35%;
+      clip-path: polygon(0% 34%, 6% 17%, 16% 6%, 30% 1%, 44% 5%, 50% 15%, 56% 5%, 70% 1%, 84% 6%, 94% 17%, 100% 34%, 100% 58%, 90% 47%, 82% 60%, 73% 44%, 64% 58%, 55% 41%, 46% 57%, 37% 41%, 28% 58%, 19% 44%, 10% 60%, 2% 47%);
+    }
+    .hair-base { position: absolute; inset: 0; background: #111; }
+    .brow { position: absolute; top: 48%; width: 9%; height: 2%; background: #161616; border-radius: 3px; }
+    .brow.l { left: 34%; transform: rotate(-3deg); } .brow.r { right: 34%; transform: rotate(3deg); }
+    .eye { position: absolute; top: 53%; width: 5%; height: 6%; background: var(--plum); border-radius: 50%; }
+    .eye.l { left: 37%; } .eye.r { right: 37%; }
+    .mouth { position: absolute; left: 50%; top: 74%; transform: translateX(-50%); width: 10%; height: 2%; border-bottom: 3px solid var(--plum); border-radius: 0 0 40% 40%; }
+
+    .target {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      background: #c98652;
+      border: 3px solid #8c5a2e;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      transform: translate(-50%, -50%);
+      display: none;
+      z-index: 20;
+      cursor: pointer;
+    }
+
+    .ai-box {
+      width: 100%;
+      max-width: 650px;
+      margin-top: 20px;
+      padding: 16px 20px;
+      background-color: #1e1b4b;
+      border: 1px solid #4338ca;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .ai-title {
+      font-size: 0.9rem;
+      color: #a5b4fc;
+      margin-bottom: 6px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ai-content {
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #e0e7ff;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Reflex & Aim Lab</h1>
+    <p style="color: #94a3b8;">서우의 완벽한 피부를 위한 반응속도 및 에임(여드름) 클리닉</p>
+  </header>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchMode('reaction')">⚡ 반응속도 테스트</button>
+    <button class="tab-btn" onclick="switchMode('aim')">🎯 에임 테스트 (서우 여드름)</button>
+  </div>
+
+  <div id="aiInputPanel" class="ai-input-panel">
+    <label for="promptInput">🌋 서우 얼굴 여드름 발생 조건 지정 (AI)</label>
+    <div class="input-row">
+      <input type="text" id="promptInput" placeholder="예) 이마 위주로 15개, 볼에는 조금만 있어줘" value="이마 위주로 15개 생성">
+      <button class="apply-btn" onclick="applyAIPrompt()">여드름 적용</button>
+    </div>
+  </div>
+
+  <div id="gameWindow" class="game-container">
+    <div id="faceBg" class="face-bg">
+      <div class="ear l"></div><div class="ear r"></div><div class="neck"></div>
+      <div class="head"></div>
+      <div class="hair-wrap"><div class="hair-base"></div></div>
+      <div class="brow l"></div><div class="brow r"></div>
+      <div class="eye l"></div><div class="eye r"></div>
+      <div class="mouth"></div>
+    </div>
+
+    <div id="gameText" class="game-text">클릭하여 반응속도 테스트 시작</div>
+    <div id="target" class="target"></div>
+  </div>
+
+  <div id="aiBox" class="ai-box">
+    <div class="ai-title">🩺 서우 피부과 AI 원장님 피드백</div>
+    <div id="aiContent" class="ai-content">분석 중...</div>
+  </div>
+
+  <script>
+    let currentMode = 'reaction';
+    
+    let reactionState = 'idle'; 
+    let timer = null;
+    let startTime = 0;
+
+    let aimScore = 0;
+    let aimTimeLeft = 10;
+    let aimInterval = null;
+    let targetSpots = []; 
+    let currentSpotIndex = 0;
+
+    const gameWindow = document.getElementById('gameWindow');
+    const gameText = document.getElementById('gameText');
+    const target = document.getElementById('target');
+    const faceBg = document.getElementById('faceBg');
+    const aiInputPanel = document.getElementById('aiInputPanel');
+    const promptInput = document.getElementById('promptInput');
+    const aiBox = document.getElementById('aiBox');
+    const aiContent = document.getElementById('aiContent');
+
+    function switchMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', (mode === 'reaction' && idx === 0) || (mode === 'aim' && idx === 1));
+      });
+
+      aiInputPanel.style.display = (mode === 'aim') ? 'flex' : 'none';
+      faceBg.style.display = (mode === 'aim') ? 'block' : 'none';
+
+      resetGame();
+    }
+
+    function resetGame() {
+      clearTimeout(timer);
+      clearInterval(aimInterval);
+      gameWindow.className = 'game-container';
+      target.style.display = 'none';
+      aiBox.style.display = 'none';
+
+      if (currentMode === 'reaction') {
+        reactionState = 'idle';
+        gameText.innerText = '클릭하여 반응속도 테스트 시작';
+      } else {
+        gameText.innerText = '클릭하여 10초 여드름 압출 테스트 시작\n(AI 지정 위치에 여드름이 등장합니다)';
+      }
+    }
+
+    gameWindow.addEventListener('click', (e) => {
+      if (currentMode === 'reaction') {
+        handleReactionClick();
+      } else if (currentMode === 'aim' && !aimInterval && e.target !== target) {
+        startAimTest();
+      }
+    });
+
+    // --- 1. Reaction Test Logic ---
+    function handleReactionClick() {
+      if (reactionState === 'idle') {
+        reactionState = 'waiting';
+        gameWindow.classList.add('state-waiting');
+        gameText.innerText = '초록색으로 바뀌면 클릭하세요!';
+        
+        const randomDelay = Math.floor(Math.random() * 3000) + 2000;
+        timer = setTimeout(() => {
+          reactionState = 'ready';
+          gameWindow.className = 'game-container state-ready';
+          gameText.innerText = '지금 클릭하세요!';
+          startTime = Date.now();
+        }, randomDelay);
+
+      } else if (reactionState === 'waiting') {
+        clearTimeout(timer);
+        reactionState = 'idle';
+        gameWindow.className = 'game-container state-early';
+        gameText.innerText = '너무 빨랐습니다! 부정출발입니다.\n다시 클릭하여 시도하세요.';
+
+      } else if (reactionState === 'ready') {
+        const rawTime = Date.now() - startTime;
+        // ⭐ 수치 보정: 기존 측정값에서 100ms 차감 (최소값 1ms 유지)
+        const adjustedTime = Math.max(1, rawTime - 100);
+
+        reactionState = 'idle';
+        gameWindow.className = 'game-container';
+        gameText.innerText = `반응속도: ${adjustedTime} ms\n(다시 하려면 클릭)`;
+        
+        renderReactionAIFeedback(adjustedTime);
+      }
+    }
+
+    // 인터넷 표준 ms 기준 + 서우 여드름 피드백
+    function renderReactionAIFeedback(ms) {
+      aiBox.style.display = 'block';
+      let feedback = '';
+
+      if (ms < 150) {
+        feedback = `⚡ **[${ms}ms - 초인적인 반응속도]**\n인터넷 상위 1% 급의 미친 반응속도입니다! 여드름이 올라오기도 전에 피부 신경이 반응해 차단하는 수준이네요. 서우 피부는 절대 염증이 생길 겨를이 없습니다!`;
+      } else if (ms <= 200) {
+        feedback = `🎯 **[${ms}ms - 프로게이머 수준]**\n인터넷 기준 최상위권(150~200ms)에 해당하는 뛰어난 순발력입니다! 여드름이 약간 볼록해지자마자 번개같은 속도로 짜낼 수 있는 완벽한 손재주를 갖추셨습니다.`;
+      } else if (ms <= 270) {
+        feedback = `👍 **[${ms}ms - 대한민국 평균 수준]**\n일반적인 성인 평균(200~270ms)에 속하는 무난하고 안정적인 반응속도입니다. 서우의 얼굴에 붉은 여드름이 터지기 직전에 적절히 대처할 수 있는 속도입니다.`;
+      } else if (ms <= 350) {
+        feedback = `🐌 **[${ms}ms - 약간 느린 반응속도]**\n평균보다 다소 느린 편(270~350ms)입니다. 여드름을 발견하고 압출기 집어들 때 이미 흉터가 남을 수 있으니 조금 더 집중해서 눌러보세요!`;
+      } else {
+        feedback = `💤 **[${ms}ms - 졸음 유발 수준]**\n350ms 초과로 다소 피곤하신 상태 같네요! 이렇게 늦게 반응하면 서우 얼굴 전체가 여드름으로 도배됩니다. 커피 한 잔 드시고 다시 도전해보세요!`;
+      }
+
+      aiContent.innerHTML = feedback.replace(/\n/g, '<br>');
+    }
+
+    // --- 2. Aim Test Logic ---
+    async function applyAIPrompt() {
+      const text = promptInput.value.trim();
+      if (!text) return;
+
+      gameText.innerText = "서우 얼굴에 맞춤 여드름을 배치 중입니다...";
+      targetSpots = parsePromptToSpots(text);
+      gameText.innerText = `생성 완료! (${targetSpots.length}개 여드름 준비됨)\n클릭하여 10초 에임 테스트 시작`;
+    }
+
+    function parsePromptToSpots(prompt) {
+      let count = 15;
+      const countMatch = prompt.match(/(\d+)\s*개/);
+      if (countMatch) {
+        count = parseInt(countMatch[1], 10);
+      }
+
+      const spots = [];
+      const hasForehead = prompt.includes('이마');
+      const hasCheek = prompt.includes('볼');
+      const hasChin = prompt.includes('턱');
+
+      for (let i = 0; i < count; i++) {
+        let x, y;
+        let choice = Math.random();
+
+        if (hasForehead && (!hasCheek || choice < 0.6)) {
+          x = 35 + Math.random() * 30;
+          y = 22 + Math.random() * 18;
+        } else if (hasChin && choice > 0.7) {
+          x = 40 + Math.random() * 20;
+          y = 70 + Math.random() * 12;
+        } else if (hasCheek) {
+          x = Math.random() < 0.5 ? (28 + Math.random() * 15) : (57 + Math.random() * 15);
+          y = 48 + Math.random() * 20;
+        } else {
+          x = 30 + Math.random() * 40;
+          y = 25 + Math.random() * 50;
+        }
+
+        spots.push({ x: Math.round(x), y: Math.round(y) });
+      }
+      return spots;
+    }
+
+    function startAimTest() {
+      if (targetSpots.length === 0) {
+        targetSpots = parsePromptToSpots(promptInput.value);
+      }
+
+      aimScore = 0;
+      aimTimeLeft = 10;
+      currentSpotIndex = 0;
+      gameText.innerText = '';
+      
+      moveTargetToNextSpot();
+      target.style.display = 'block';
+
+      aimInterval = setInterval(() => {
+        aimTimeLeft--;
+        if (aimTimeLeft <= 0) {
+          endAimTest();
+        }
+      }, 1000);
+    }
+
+    target.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (aimTimeLeft > 0) {
+        aimScore++;
+        moveTargetToNextSpot();
+      }
+    });
+
+    function moveTargetToNextSpot() {
+      if (currentSpotIndex >= targetSpots.length) {
+        currentSpotIndex = 0;
+      }
+      
+      const spot = targetSpots[currentSpotIndex];
+      target.style.left = `${spot.x}%`;
+      target.style.top = `${spot.y}%`;
+      currentSpotIndex++;
+    }
+
+    function endAimTest() {
+      clearInterval(aimInterval);
+      aimInterval = null;
+      target.style.display = 'none';
+      gameText.innerText = `시간 종료!\n총 제거한 여드름: ${aimScore} 개\n(다시 하려면 클릭)`;
+
+      renderAimAIFeedback(aimScore, targetSpots.length);
+    }
+
+    // 에임 테스트 맞춤형 서우 피드백
+    function renderAimAIFeedback(score, total) {
+      aiBox.style.display = 'block';
+      let feedback = '';
+
+      if (score >= 12) {
+        feedback = `🩺 **[압출의 신! 제거율: ${score}/${total}개]**\n신들린 에임과 정교한 손놀림입니다! 서우 얼굴에 있던 顽固한 여드름들이 순식간에 흉터 하나 없이 깨끗해졌습니다. 명의로 인정합니다!`;
+      } else if (score >= 7) {
+        feedback = `🧴 **[숙련된 피부과 조교! 제거율: ${score}/${total}개]**\n꽤 훌륭한 에임 성능입니다! 서우의 피부가 이전보다 한결 깨끗해지고 매끄러워졌네요. 남은 여드름 몇 개만 더 정밀 조준해보세요!`;
+      } else {
+        feedback = `🩹 **[에임 난조! 제거율: ${score}/${total}개]**\n에임 미스로 인해 여드름을 많이 터트리지 못했습니다. 빗나간 손길 때문에 서우 피부가 발개졌군요! 좀 더 신중하게 타겟을 클릭해보세요.`;
+      }
+
+      aiContent.innerHTML = feedback.replace(/\n/g, '<br>');
+    }
+  </script>
+</body>
+</html>
