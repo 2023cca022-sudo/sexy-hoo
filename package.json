@@ -1,9 +1,0 @@
-{
-  "name": "seou-acne-game",
-  "version": "1.0.0",
-  "private": true,
-  "description": "서우 여드름 짜기 챌린지 - Gemini API로 여드름을 생성하는 웹 게임",
-  "engines": {
-    "node": ">=18"
-  }
-}
