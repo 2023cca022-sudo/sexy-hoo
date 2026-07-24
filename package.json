@@ -1,22 +1,12 @@
 {
-  "name": "stitch-io-app",
+  "name": "reaction-aim-test",
   "version": "1.0.0",
-  "description": "Stitch.io Web Application Repository",
-  "main": "server.js",
+  "description": "반응속도 및 에임 테스트 웹앱 (Gemini AI 피드백 연동)",
+  "main": "index.html",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "serve ."
   },
-  "keywords": [
-    "stitch",
-    "workflow",
-    "landing-page",
-    "tailwind",
-    "express"
-  ],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2"
+    "@google/genai": "^0.1.1"
   }
 }
