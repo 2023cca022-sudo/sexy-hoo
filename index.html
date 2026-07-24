@@ -207,85 +207,120 @@
   .face{
     position:absolute;
     inset:0;
+    z-index: 1;
   }
   .head{
     position:absolute;
-    left:50%; top:53%;
+    left:50%; top:55%;
     transform: translate(-50%,-50%);
     width: 62%;
-    aspect-ratio: 1/1.15;
+    aspect-ratio: 1/1.1;
     background: var(--skin);
-    border-radius: 48% 48% 44% 44% / 52% 52% 46% 46%;
-    box-shadow: inset 0 -18px 30px rgba(244,189,133,.6), inset 0 14px 20px rgba(255,255,255,.5);
+    border-radius: 46% 46% 40% 40% / 52% 52% 42% 42%;
+    box-shadow: inset 0 -20px 32px rgba(244,189,133,.65), inset 0 14px 20px rgba(255,255,255,.5);
   }
   .ear{
     position:absolute;
-    top:48%;
+    top:50%;
     width:9%;
     aspect-ratio:1/1.3;
     background: var(--skin);
     border-radius: 50%;
+    z-index: -1;
   }
   .ear.l{ left: 15.5%; }
   .ear.r{ right: 15.5%; }
-  .hair{
+  .neck{
     position:absolute;
-    left:50%; top:20%;
+    left:50%; bottom:7%;
     transform: translateX(-50%);
-    width: 68%;
-    aspect-ratio: 1/0.62;
-    background: var(--plum);
-    border-radius: 50% 50% 30% 30% / 70% 70% 20% 20%;
+    width: 22%;
+    height: 12%;
+    background: var(--skin-shade);
+    z-index: 0;
   }
+
+  /* natural black hair with a side-swept, slightly messy fringe */
+  .hair-wrap{
+    position:absolute;
+    left:50%; top:9%;
+    transform: translateX(-50%);
+    width: 76%;
+    aspect-ratio: 1/0.95;
+    clip-path: polygon(
+      0% 32%, 5% 16%, 14% 8%, 26% 3%, 40% 0%, 56% 0%, 70% 3%, 83% 8%, 93% 16%, 100% 32%,
+      100% 52%, 91% 46%, 83% 58%, 74% 44%, 66% 56%, 57% 42%, 48% 55%,
+      40% 42%, 32% 56%, 24% 44%, 16% 58%, 8% 46%, 0% 52%
+    );
+  }
+  .hair-base{
+    position:absolute; inset:0;
+    background: linear-gradient(150deg, #0e0e0e, #262626 60%, #0e0e0e);
+  }
+
+  .brow{
+    position:absolute;
+    top:47%;
+    width:9.5%;
+    height:2.4%;
+    background: #161616;
+    border-radius: 2px;
+  }
+  .brow.l{ left: 31%; transform: rotate(-5deg); }
+  .brow.r{ right: 31%; transform: rotate(5deg); }
+
   .eye{
     position:absolute;
-    top:52%;
+    top:53%;
     width: 6.5%;
-    aspect-ratio: 1/1.3;
+    aspect-ratio: 1/1.25;
     background: var(--plum);
     border-radius: 50%;
+    overflow:hidden;
   }
-  .eye.l{ left: 37%; }
-  .eye.r{ right: 37%; }
-  .cheek{
+  .eye::after{
+    content:"";
     position:absolute;
-    top:63%;
-    width:10%;
-    aspect-ratio:1/1;
-    background: var(--blush);
-    opacity:.35;
+    top:18%; left:52%;
+    width:32%; height:32%;
+    background: rgba(255,255,255,.75);
     border-radius:50%;
-    filter: blur(1px);
   }
-  .cheek.l{ left: 27%; }
-  .cheek.r{ right: 27%; }
+  .eye.l{ left: 35.5%; }
+  .eye.r{ right: 35.5%; }
+
   .mouth{
     position:absolute;
-    left:50%; top:76%;
+    left:50%; top:75.5%;
     transform: translateX(-50%);
-    width: 15%;
-    height: 4%;
-    border-bottom: 5px solid var(--blush-dark);
-    border-radius: 0 0 50% 50%;
+    width: 13%;
+    height: 2.6%;
+    border-bottom: 4px solid var(--plum);
+    border-radius: 0 0 40% 40%;
+  }
+
+  /* plain black t-shirt neckline */
+  .tshirt{
+    position:absolute;
+    left:50%; bottom:-3%;
+    transform: translateX(-50%);
+    width: 84%;
+    height: 16%;
+    background: linear-gradient(160deg, #1c1c1c, #2a2a2a);
+    border-radius: 45% 45% 0 0 / 70% 70% 0 0;
+    z-index: 2;
   }
 
   .pimple{
     position:absolute;
     transform: translate(-50%,-50%);
     border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #ffb3ba, #e8636f 70%, #c94555);
-    box-shadow: 0 0 0 2px rgba(255,255,255,.5), 0 2px 4px rgba(0,0,0,.15);
+    background: #c98652;
+    border: 3px solid #8c5a2e;
+    box-shadow: 0 2px 5px rgba(0,0,0,.25);
     cursor: pointer;
     animation: pop-in .18s ease-out;
     z-index: 5;
-  }
-  .pimple::after{
-    content:"";
-    position:absolute;
-    top:22%; left:30%;
-    width:28%; height:28%;
-    background: rgba(255,255,255,.75);
-    border-radius:50%;
   }
   @keyframes pop-in{ from{ transform: translate(-50%,-50%) scale(0);} to{ transform: translate(-50%,-50%) scale(1);} }
 
@@ -393,15 +428,19 @@
     <div class="stage-wrap">
       <div id="stage">
         <div class="face">
-          <div class="hair"></div>
           <div class="ear l"></div>
           <div class="ear r"></div>
+          <div class="neck"></div>
           <div class="head"></div>
+          <div class="hair-wrap">
+            <div class="hair-base"></div>
+          </div>
+          <div class="brow l"></div>
+          <div class="brow r"></div>
           <div class="eye l"></div>
           <div class="eye r"></div>
-          <div class="cheek l"></div>
-          <div class="cheek r"></div>
           <div class="mouth"></div>
+          <div class="tshirt"></div>
         </div>
         <!-- pimples get injected here -->
       </div>
