@@ -1,8 +1,0 @@
-seou-acne-challenge/
-├── api/
-│   └── generate.js
-├── public/
-│   └── index.html
-├── package.json
-├── .gitignore
-└── README.md
