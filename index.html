@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>서우 여드름 짜기 챌린지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --skin: #ffd9b3;
+    --skin-shade: #f4bd85;
+    --blush: #ff6b81;
+    --blush-dark: #e14a63;
+    --mint-bg: #eaf7f0;
+    --mint-deep: #bfe8d4;
+    --plum: #3a2e39;
+    --yellow: #ffd23f;
+    --white: #ffffff;
+    --card-bg: rgba(255, 255, 255, 0.88);
+    --shadow-color: rgba(58, 46, 57, 0.12);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; min-height: 100vh; }
+  body {
+    background:
+      radial-gradient(circle at 15% 20%, var(--mint-deep) 0%, transparent 45%),
+      radial-gradient(circle at 85% 80%, #ffe3b0 0%, transparent 50%),
+      var(--mint-bg);
+    font-family: "Noto Sans KR", sans-serif;
+    color: var(--plum);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+  }
+  #app {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    padding: 24px 20px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+  .eyebrow {
+    font-family: "Gaegu", cursive;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--blush-dark);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  h1 {
+    font-family: "Gaegu", cursive;
+    font-size: 38px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    text-align: center;
+    line-height: 1.2;
+    color: var(--plum);
+  }
+  .sub {
+    font-size: 14px;
+    color: #6b5c68;
+    text-align: center;
+    margin: 0 0 20px;
+    max-width: 320px;
+    word-break: keep-all;
+  }
+  .screen { width: 100%; display: flex; flex-direction: column; align-items: center; }
+  [hidden] { display: none !important; }
+
+  /* ---------- Mode Tabs ---------- */
+  .mode-tabs {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    padding: 6px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 4px 12px var(--shadow-color);
+  }
+  .mode-tab {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: #8a7c86;
+    font-family: "Gaegu", cursive;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 10px 4px;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .mode-tab.active {
+    background: var(--white);
+    color: var(--blush-dark);
+    box-shadow: 0 4px 10px rgba(225, 74, 99, 0.15);
+  }
+  .panel-desc {
+    font-size: 13px;
+    color: #6b5c68;
+    line-height: 1.6;
+    margin: 0;
+    word-break: keep-all;
+  }
+  .panel-desc strong { color: var(--blush-dark); }
+
+  /* ---------- Card Component ---------- */
+  .card {
+    width: 100%;
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border-radius: 28px;
+    padding: 24px;
+    box-shadow: 0 12px 32px var(--shadow-color);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+  }
+  label {
+    display: block;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--blush-dark);
+    margin-bottom: 10px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 90px;
+    resize: vertical;
+    border-radius: 18px;
+    border: 2px solid rgba(58, 46, 57, 0.08);
+    padding: 14px;
+    font-family: "Noto Sans KR", sans-serif;
+    font-size: 14px;
+    background: #ffffff;
+    color: var(--plum);
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  textarea:focus {
+    border-color: var(--blush);
+    box-shadow: 0 0 0 4px rgba(255, 107, 129, 0.15);
+  }
+  .presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 6px;
+  }
+  .preset-btn {
+    border: none;
+    background: var(--mint-deep);
+    color: #1f4e37;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: transform 0.1s ease, filter 0.15s ease, background-color 0.2s;
+  }
+  .preset-btn:hover { filter: brightness(0.95); transform: translateY(-1px); }
+  .preset-btn.active {
+    background: var(--blush-dark);
+    color: white;
+  }
+
+  .primary-btn {
+    width: 100%;
+    margin-top: 18px;
+    border: none;
+    background: linear-gradient(135deg, var(--blush), var(--blush-dark));
+    color: white;
+    font-family: "Gaegu", cursive;
+    font-size: 22px;
+    font-weight: 700;
+    padding: 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(225, 74, 99, 0.25);
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .primary-btn:active { transform: translateY(2px); box-shadow: 0 4px 8px rgba(225, 74, 99, 0.2); }
+  .primary-btn:disabled { opacity: 0.6; cursor: default; }
+  .primary-btn.secondary {
+    background: linear-gradient(135deg, #ffe066, var(--yellow));
+    color: var(--plum);
+    box-shadow: 0 8px 18px rgba(255, 210, 63, 0.3);
+  }
+
+  .status-line {
+    font-size: 12px;
+    color: #8a7c86;
+    text-align: center;
+    margin-top: 12px;
+    min-height: 16px;
+  }
+
+  /* ---------- HUD ---------- */
+  .hud {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .pill {
+    flex: 1;
+    background: var(--card-bg);
+    backdrop-filter: blur(8px);
+    border-radius: 20px;
+    padding: 10px 6px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 6px 16px var(--shadow-color);
+  }
+  .pill .num {
+    font-family: "Gaegu", cursive;
+    font-size: 28px;
+    font-weight: 700;
+    display: block;
+    line-height: 1;
+  }
+  .pill .lbl {
+    font-size: 11px;
+    color: #8a7c86;
+    font-weight: 700;
+  }
+  .pill.timer .num { color: var(--blush-dark); }
+  .pill.score .num { color: #1f4e37; }
+  .pill.combo .num { color: #a3720b; }
+
+  /* ---------- Stage ---------- */
+  .stage-wrap {
+    width: 100%;
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    border-radius: 32px;
+    padding: 16px;
+    box-shadow: 0 12px 32px var(--shadow-color);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    position: relative;
+  }
+  #stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 24px;
+    overflow: hidden;
+    background: linear-gradient(180deg, #fff3e2, #ffe6c9);
+    cursor: default;
+    touch-action: manipulation;
+  }
+
+  /* ---------- Reaction Test Stage ---------- */
+  #reaction-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 24px;
+    overflow: hidden;
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s ease;
+  }
+  #reaction-stage.waiting { background: linear-gradient(160deg, #ffb3b3, #ff5c5c); }
+  #reaction-stage.go { background: linear-gradient(160deg, #bdf3d1, #4fd67f); }
+  #reaction-stage.foul { background: linear-gradient(160deg, #e3e3e3, #b9b9b9); }
+  #reaction-target {
+    width: 46%;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.15);
+    transition: transform 0.12s ease;
+  }
+  #reaction-stage.go #reaction-target { transform: scale(1.08); }
+  #reaction-message {
+    position: absolute;
+    left: 50%; bottom: 24px;
+    transform: translateX(-50%);
+    font-family: "Gaegu", cursive;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    width: 90%;
+  }
+  .reaction-bars {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .reaction-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: #6b5c68;
+  }
+  .reaction-bar-row .r-lbl { width: 44px; flex-shrink: 0; font-weight: 700; }
+  .reaction-bar-row .r-track {
+    flex: 1;
+    height: 12px;
+    background: var(--mint-bg);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .reaction-bar-row .r-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blush), var(--yellow));
+    border-radius: 999px;
+  }
+  .reaction-bar-row .r-val { width: 56px; flex-shrink: 0; text-align: right; font-weight: 700; }
+
+  /* Face Graphic Component */
+  .face { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  .head {
+    position: absolute;
+    left: 50%; top: 56%;
+    transform: translate(-50%, -50%);
+    width: 64%;
+    aspect-ratio: 1/1.02;
+    background: var(--skin);
+    border-radius: 48% 48% 42% 42% / 54% 54% 44% 44%;
+    box-shadow: inset 0 -20px 32px rgba(244, 189, 133, 0.65), inset 0 14px 20px rgba(255, 255, 255, 0.5);
+  }
+  .ear {
+    position: absolute;
+    top: 50%;
+    width: 9%;
+    aspect-ratio: 1/1.3;
+    background: var(--skin);
+    border-radius: 50%;
+    z-index: -1;
+  }
+  .ear.l { left: 15.5%; }
+  .ear.r { right: 15.5%; }
+  .neck {
+    position: absolute;
+    left: 50%; bottom: 7%;
+    transform: translateX(-50%);
+    width: 22%;
+    height: 12%;
+    background: var(--skin-shade);
+    z-index: 0;
+  }
+  .hair-wrap {
+    position: absolute;
+    left: 50%; top: 7%;
+    transform: translateX(-50%);
+    width: 78%;
+    aspect-ratio: 1/1.02;
+    clip-path: polygon(
+      0% 34%, 6% 17%, 16% 6%, 30% 1%, 44% 5%, 50% 15%, 56% 5%, 70% 1%, 84% 6%, 94% 17%, 100% 34%,
+      100% 58%, 90% 47%, 82% 60%, 73% 44%, 64% 58%, 55% 41%, 46% 57%,
+      37% 41%, 28% 58%, 19% 44%, 10% 60%, 2% 47%
+    );
+  }
+  .hair-base {
+    position: absolute; inset: 0;
+    background: linear-gradient(150deg, #0e0e0e, #262626 60%, #0e0e0e);
+  }
+  .brow {
+    position: absolute;
+    top: 47%;
+    width: 10.5%;
+    height: 3%;
+    background: #161616;
+    border-radius: 3px;
+  }
+  .brow.l { left: 30%; transform: rotate(-3deg); }
+  .brow.r { right: 30%; transform: rotate(3deg); }
+
+  .eye {
+    position: absolute;
+    top: 53%;
+    width: 6.5%;
+    aspect-ratio: 1/1.25;
+    background: var(--plum);
+    border-radius: 50%;
+    overflow: hidden;
+  }
+  .eye::after {
+    content: "";
+    position: absolute;
+    top: 18%; left: 52%;
+    width: 32%; height: 32%;
+    background: rgba(255, 255, 255, 0.75);
+    border-radius: 50%;
+  }
+  .eye.l { left: 35.5%; }
+  .eye.r { right: 35.5%; }
+
+  .mouth {
+    position: absolute;
+    left: 50%; top: 75.5%;
+    transform: translateX(-50%);
+    width: 13%;
+    height: 2.6%;
+    border-bottom: 4px solid var(--plum);
+    border-radius: 0 0 40% 40%;
+  }
+
+  /* Pimple Elements */
+  .pimple {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #ff8093, #e14a63);
+    border: 2px solid #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    animation: pop-in 0.18s ease-out;
+    z-index: 5;
+  }
+  @keyframes pop-in { from { transform: translate(-50%, -50%) scale(0); } to { transform: translate(-50%, -50%) scale(1); } }
+
+  .splat {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    font-family: "Gaegu", cursive;
+    font-weight: 700;
+    color: var(--blush-dark);
+    font-size: 18px;
+    animation: float-up 0.55s ease-out forwards;
+    z-index: 6;
+  }
+  @keyframes float-up {
+    0% { opacity: 1; transform: translate(-50%, -50%) scale(0.8); }
+    100% { opacity: 0; transform: translate(-50%, -140%) scale(1.2); }
+  }
+  .burst {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--yellow);
+    pointer-events: none;
+    z-index: 6;
+  }
+
+  #timer-bar-wrap {
+    width: 100%;
+    height: 10px;
+    background: #f0e2d6;
+    border-radius: 999px;
+    margin-top: 14px;
+    overflow: hidden;
+  }
+  #timer-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blush), var(--yellow));
+    width: 100%;
+    transition: width 0.1s linear;
+  }
+
+  /* ---------- End Screen ---------- */
+  .result-num {
+    font-family: "Gaegu", cursive;
+    font-size: 64px;
+    font-weight: 700;
+    color: var(--blush-dark);
+    line-height: 1;
+    margin: 6px 0 0;
+  }
+  .result-lbl { font-size: 13px; color: #8a7c86; font-weight: 700; }
+  .stat-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 18px;
+  }
+  .stat {
+    flex: 1;
+    background: var(--mint-bg);
+    border-radius: 16px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .stat .n { font-weight: 900; font-size: 18px; }
+  .stat .l { font-size: 11px; color: #6b5c68; }
+  .footnote {
+    font-size: 11px;
+    color: #a89aa3;
+    text-align: center;
+    margin-top: 20px;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="eyebrow">POP · POP · SEOU</div>
+  <h1>서우 여드름 짜기 챌린지</h1>
+  <p class="sub">오늘 서우의 여드름 상태를 이야기해주면, AI가 챌린지 무대를 세팅해 줘요!</p>
+
+  <!-- START SCREEN -->
+  <section id="start-screen" class="screen">
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="timeattack">타임어택 모드</button>
+      <button class="mode-tab" data-mode="reaction">반응속도 테스트</button>
+    </div>
+
+    <div id="timeattack-panel" class="card">
+      <label for="prompt-input">오늘 서우 피부 상태는 어떤가요?</label>
+      <textarea id="prompt-input" placeholder="예) 이마에 여드름이 많이 나고 볼에도 몇 개 크게 올라왔어."></textarea>
+      <div class="presets">
+        <button class="preset-btn" data-p="이마에 여드름이 폭발했어! 20개 넘게 만들어줘">이마 폭발형</button>
+        <button class="preset-btn" data-p="얼굴 전체에 작은 잡티 여드름 15개 골고루">전체 잡티형</button>
+        <button class="preset-btn" data-p="턱과 코 위주로 크고 매운 여드름 10개, 제한시간은 20초!">스피드 턱선형</button>
+      </div>
+      <button id="generate-btn" class="primary-btn">AI 여드름 스테이지 생성하기</button>
+      <div id="status-line" class="status-line"></div>
+    </div>
+
+    <div id="reaction-panel" class="card" hidden>
+      <label>몇 번 도전하시겠어요?</label>
+      <div class="presets" id="attempt-select">
+        <button class="preset-btn attempt-btn" data-count="3">3회</button>
+        <button class="preset-btn attempt-btn active" data-count="5">5회</button>
+        <button class="preset-btn attempt-btn" data-count="10">10회</button>
+      </div>
+      <p class="panel-desc" style="margin-top:12px;">
+        스테이지가 <strong>빨간색</strong>일 때는 대기하세요. <strong>초록색</strong>으로 바뀌는 순간 빛의 속도로 클릭!
+      </p>
+      <button id="reaction-start-btn" class="primary-btn">반응속도 테스트 시작</button>
+      <div id="reaction-status-line" class="status-line"></div>
+    </div>
+  </section>
+
+  <!-- GAME SCREEN (타임어택) -->
+  <section id="game-screen" class="screen" hidden>
+    <div class="hud">
+      <div class="pill timer"><span id="hud-time" class="num">30</span><span class="lbl">남은 시간</span></div>
+      <div class="pill score"><span id="hud-score" class="num">0</span><span class="lbl">터트린 개수</span></div>
+      <div class="pill combo"><span id="hud-combo" class="num">0</span><span class="lbl">현재 콤보</span></div>
+    </div>
+    <div class="stage-wrap">
+      <div id="stage">
+        <div class="face">
+          <div class="ear l"></div>
+          <div class="ear r"></div>
+          <div class="neck"></div>
+          <div class="head"></div>
+          <div class="hair-wrap"><div class="hair-base"></div></div>
+          <div class="brow l"></div>
+          <div class="brow r"></div>
+          <div class="eye l"></div>
+          <div class="eye r"></div>
+          <div class="mouth"></div>
+        </div>
+      </div>
+      <div id="timer-bar-wrap"><div id="timer-bar"></div></div>
+    </div>
+  </section>
+
+  <!-- REACTION TEST SCREEN -->
+  <section id="reaction-screen" class="screen" hidden>
+    <div class="hud">
+      <div class="pill timer"><span id="reaction-round" class="num">1/5</span><span class="lbl">진행 Round</span></div>
+      <div class="pill score"><span id="reaction-last" class="num">-</span><span class="lbl">이번 기록(ms)</span></div>
+      <div class="pill combo"><span id="reaction-best" class="num">-</span><span class="lbl">최고 기록(ms)</span></div>
+    </div>
+    <div class="stage-wrap">
+      <div id="reaction-stage" class="waiting">
+        <div id="reaction-target"></div>
+        <div id="reaction-message">초록색을 기다리세요...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- END SCREEN (타임어택) -->
+  <section id="end-screen" class="screen" hidden>
+    <div class="card" style="text-align:center;">
+      <div class="result-lbl">최종 터트린 여드름</div>
+      <div id="final-score" class="result-num">0</div>
+      <div class="result-lbl">개 성공!</div>
+      <div class="stat-row">
+        <div class="stat"><div id="stat-spawned" class="n">0</div><div class="l">총 여드름</div></div>
+        <div class="stat"><div id="stat-accuracy" class="n">0%</div><div class="l">성공률</div></div>
+        <div class="stat"><div id="stat-best-combo" class="n">0</div><div class="l">최고 콤보</div></div>
+      </div>
+      <button id="retry-btn" class="primary-btn">동일 조건 다시 도전</button>
+      <button id="new-prompt-btn" class="primary-btn secondary">새로운 AI 스테이지 만들기</button>
+    </div>
+  </section>
+
+  <!-- REACTION RESULT SCREEN -->
+  <section id="reaction-end-screen" class="screen" hidden>
+    <div class="card" style="text-align:center;">
+      <div class="result-lbl">평균 반응속도</div>
+      <div id="reaction-avg" class="result-num">0<span style="font-size:22px;">ms</span></div>
+      <div id="reaction-rating" class="result-lbl" style="margin-top:4px;"></div>
+      <div class="stat-row">
+        <div class="stat"><div id="reaction-stat-best" class="n">0ms</div><div class="l">최고 기록</div></div>
+        <div class="stat"><div id="reaction-stat-worst" class="n">0ms</div><div class="l">최저 기록</div></div>
+        <div class="stat"><div id="reaction-stat-fouls" class="n">0회</div><div class="l">파울(조기클릭)</div></div>
+      </div>
+      <div id="reaction-bars" class="reaction-bars"></div>
+      <button id="reaction-retry-btn" class="primary-btn">다시 측정하기</button>
+      <button id="reaction-home-btn" class="primary-btn secondary">메인으로 돌아가기</button>
+    </div>
+  </section>
+
+  <div class="footnote">가상의 캐리커처 위에서 플레이되는 미니게임입니다.</div>
+</div>
+
+<script>
+(function(){
+  const startScreen = document.getElementById('start-screen');
+  const gameScreen = document.getElementById('game-screen');
+  const endScreen = document.getElementById('end-screen');
+  const promptInput = document.getElementById('prompt-input');
+  const generateBtn = document.getElementById('generate-btn');
+  const statusLine = document.getElementById('status-line');
+  const stage = document.getElementById('stage');
+  const hudTime = document.getElementById('hud-time');
+  const hudScore = document.getElementById('hud-score');
+  const hudCombo = document.getElementById('hud-combo');
+  const timerBar = document.getElementById('timer-bar');
+  const finalScore = document.getElementById('final-score');
+  const statSpawned = document.getElementById('stat-spawned');
+  const statAccuracy = document.getElementById('stat-accuracy');
+  const statBestCombo = document.getElementById('stat-best-combo');
+  const retryBtn = document.getElementById('retry-btn');
+  const newPromptBtn = document.getElementById('new-prompt-btn');
+
+  const timeattackPanel = document.getElementById('timeattack-panel');
+  const reactionPanel = document.getElementById('reaction-panel');
+  const reactionScreen = document.getElementById('reaction-screen');
+  const reactionEndScreen = document.getElementById('reaction-end-screen');
+  const reactionStartBtn = document.getElementById('reaction-start-btn');
+  const reactionStage = document.getElementById('reaction-stage');
+  const reactionMessage = document.getElementById('reaction-message');
+  const reactionRoundLbl = document.getElementById('reaction-round');
+  const reactionLastLbl = document.getElementById('reaction-last');
+  const reactionBestLbl = document.getElementById('reaction-best');
+  const reactionAvg = document.getElementById('reaction-avg');
+  const reactionRating = document.getElementById('reaction-rating');
+  const reactionStatBest = document.getElementById('reaction-stat-best');
+  const reactionStatWorst = document.getElementById('reaction-stat-worst');
+  const reactionStatFouls = document.getElementById('reaction-stat-fouls');
+  const reactionBars = document.getElementById('reaction-bars');
+  const reactionRetryBtn = document.getElementById('reaction-retry-btn');
+  const reactionHomeBtn = document.getElementById('reaction-home-btn');
+
+  // Mode switching
+  document.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const mode = tab.dataset.mode;
+      timeattackPanel.hidden = mode !== 'timeattack';
+      reactionPanel.hidden = mode !== 'reaction';
+    });
+  });
+
+  document.querySelectorAll('.preset-btn[data-p]').forEach(btn => {
+    btn.addEventListener('click', () => { promptInput.value = btn.dataset.p; });
+  });
+
+  let spec = null;
+  let spawnQueue = [];
+  let score = 0, spawnedCount = 0, combo = 0, bestCombo = 0;
+  let timeLeft = 30, totalTime = 30;
+  let gameTimer = null, spawnTimer = null;
+  let running = false;
+
+  const SIZE_PX = { small: 6, medium: 9, large: 12 };
+
+  function fallbackSpec(promptText){
+    const count = Math.min(30, Math.max(10, Math.round(10 + (promptText||'').length / 5)));
+    const duration = /짧|빨리|스피드/.test(promptText||'') ? 20 : 30;
+    const regions = ['forehead','cheek-left','cheek-right','chin','nose'];
+    const spots = Array.from({length: count}).map(() => {
+      return {
+        region: regions[Math.floor(Math.random()*regions.length)],
+        x: 25 + Math.random()*50,
+        y: 25 + Math.random()*50,
+        size: ['small','medium','medium','large'][Math.floor(Math.random()*4)]
+      };
+    });
+    return { count, duration, spots };
+  }
+
+  async function requestSpec(promptText){
+    try {
+      const res = await fetch('/api/generate', {
+        method:'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ prompt: promptText })
+      });
+      if(!res.ok) throw new Error('API 응답 에러');
+      const data = await res.json();
+      if(!data || !Array.isArray(data.spots)) throw new Error('데이터 구조 오류');
+      return {
+        count: Math.max(1, Math.min(50, Number(data.count) || data.spots.length)),
+        duration: Math.max(10, Math.min(60, Number(data.duration) || 30)),
+        spots: data.spots.map(s => ({
+          region: s.region || 'forehead',
+          x: Math.min(85, Math.max(15, Number(s.x) || 50)),
+          y: Math.min(85, Math.max(15, Number(s.y) || 50)),
+          size: ['small','medium','large'].includes(s.size) ? s.size : 'medium'
+        }))
+      };
+    } catch(err) {
+      statusLine.textContent = 'AI 생성 장애로 기본 난이도로 세팅되었습니다.';
+      return fallbackSpec(promptText);
+    }
+  }
+
+  generateBtn.addEventListener('click', async () => {
+    generateBtn.disabled = true;
+    statusLine.textContent = 'AI가 서우의 피부 상태를 분석하는 중...';
+    const promptText = promptInput.value.trim();
+    spec = await requestSpec(promptText);
+    generateBtn.disabled = false;
+    statusLine.textContent = '';
+    startGame();
+  });
+
+  function startGame(){
+    score = 0; spawnedCount = 0; combo = 0; bestCombo = 0;
+    timeLeft = spec.duration; totalTime = spec.duration;
+    spawnQueue = spec.spots.slice();
+    hudScore.textContent = '0';
+    hudCombo.textContent = '0';
+    hudTime.textContent = String(timeLeft);
+    timerBar.style.width = '100%';
+    stage.querySelectorAll('.pimple, .splat, .burst').forEach(el => el.remove());
+
+    startScreen.hidden = true;
+    endScreen.hidden = true;
+    gameScreen.hidden = false;
+    running = true;
+
+    const spawnInterval = Math.max(200, (spec.duration * 1000 * 0.7) / Math.max(1, spec.count));
+    spawnTimer = setInterval(() => {
+      if(!running) return;
+      if(spawnQueue.length === 0){ clearInterval(spawnTimer); return; }
+      spawnPimple(spawnQueue.shift());
+    }, spawnInterval);
+
+    gameTimer = setInterval(() => {
+      timeLeft -= 1;
+      hudTime.textContent = String(Math.max(0, timeLeft));
+      timerBar.style.width = Math.max(0, (timeLeft / totalTime * 100)) + '%';
+      if(timeLeft <= 0){ endGame(); }
+    }, 1000);
+  }
+
+  function spawnPimple(s){
+    spawnedCount++;
+    const el = document.createElement('div');
+    el.className = 'pimple';
+    const sizePct = SIZE_PX[s.size] || 9;
+    el.style.width = sizePct + '%';
+    el.style.aspectRatio = '1/1';
+    el.style.left = s.x + '%';
+    el.style.top = s.y + '%';
+    
+    const popHandler = (e) => {
+      e.preventDefault();
+      popPimple(el);
+    };
+    el.addEventListener('pointerdown', popHandler, { once: true });
+    stage.appendChild(el);
+
+    setTimeout(() => {
+      if(el.isConnected){
+        el.style.transition = 'opacity .25s ease';
+        el.style.opacity = '0';
+        combo = 0;
+        hudCombo.textContent = '0';
+        setTimeout(() => el.remove(), 250);
+      }
+    }, Math.max(2000, totalTime * 80));
+  }
+
+  function popPimple(el){
+    if(!running) return;
+    const x = el.offsetLeft, y = el.offsetTop;
+    el.remove();
+    score++; combo++; bestCombo = Math.max(bestCombo, combo);
+    hudScore.textContent = String(score);
+    hudCombo.textContent = String(combo);
+
+    const splat = document.createElement('div');
+    splat.className = 'splat';
+    splat.textContent = combo >= 3 ? `+1 (${combo} Combo!)` : '+1';
+    splat.style.left = x + 'px';
+    splat.style.top = y + 'px';
+    stage.appendChild(splat);
+    setTimeout(() => splat.remove(), 550);
+
+    for(let i = 0; i < 5; i++){
+      const b = document.createElement('div');
+      b.className = 'burst';
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 12 + Math.random() * 16;
+      b.style.left = x + 'px';
+      b.style.top = y + 'px';
+      stage.appendChild(b);
+      requestAnimationFrame(() => {
+        b.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
+        b.style.opacity = '0';
+        b.style.transition = 'transform .3s ease-out, opacity .3s ease-out';
+      });
+      setTimeout(() => b.remove(), 350);
+    }
+  }
+
+  function endGame(){
+    running = false;
+    clearInterval(gameTimer);
+    clearInterval(spawnTimer);
+    stage.querySelectorAll('.pimple').forEach(el => el.remove());
+
+    finalScore.textContent = String(score);
+    statSpawned.textContent = String(spawnedCount);
+    statAccuracy.textContent = spawnedCount ? Math.round(score/spawnedCount*100) + '%' : '0%';
+    statBestCombo.textContent = String(bestCombo);
+
+    gameScreen.hidden = true;
+    endScreen.hidden = false;
+  }
+
+  retryBtn.addEventListener('click', () => { if(spec) startGame(); });
+  newPromptBtn.addEventListener('click', () => {
+    endScreen.hidden = true;
+    startScreen.hidden = false;
+  });
+
+  /* 반응속도 테스트 */
+  let REACTION_ROUNDS = 5;
+  let reactionResults = [], reactionRoundIndex = 0, reactionFouls = 0;
+  let reactionState = 'idle', reactionSpawnTime = 0, reactionTimeoutHandle = null, reactionBestMs = null;
+
+  document.querySelectorAll('.attempt-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.attempt-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      REACTION_ROUNDS = Number(btn.dataset.count);
+    });
+  });
+
+  reactionStartBtn.addEventListener('click', startReactionTest);
+
+  function startReactionTest(){
+    reactionResults = []; reactionRoundIndex = 0; reactionFouls = 0; reactionBestMs = null;
+    reactionBestLbl.textContent = '-'; reactionLastLbl.textContent = '-';
+    startScreen.hidden = true; reactionEndScreen.hidden = true; reactionScreen.hidden = false;
+    nextReactionRound();
+  }
+
+  function nextReactionRound(){
+    if(reactionRoundIndex >= REACTION_ROUNDS){
+      finishReactionTest();
+      return;
+    }
+    reactionRoundIndex++;
+    reactionRoundLbl.textContent = reactionRoundIndex + '/' + REACTION_ROUNDS;
+    armWaiting();
+  }
+
+  function armWaiting(){
+    reactionState = 'waiting';
+    reactionStage.className = 'waiting';
+    reactionMessage.textContent = '초록색으로 변할 때까지 대기하세요...';
+
+    const delay = 1200 + Math.random() * 2800;
+    reactionTimeoutHandle = setTimeout(() => {
+      reactionState = 'go';
+      reactionStage.className = 'go';
+      reactionMessage.textContent = '지금 터치하세요!';
+      reactionSpawnTime = performance.now();
+    }, delay);
+  }
+
+  reactionStage.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    if(reactionState === 'waiting'){
+      clearTimeout(reactionTimeoutHandle);
+      reactionFouls++;
+      reactionState = 'idle';
+      reactionStage.className = 'foul';
+      reactionMessage.textContent = '너무 빨랐어요! (파울)';
+      setTimeout(armWaiting, 800);
+    } else if(reactionState === 'go'){
+      const ms = Math.round(performance.now() - reactionSpawnTime);
+      reactionState = 'idle';
+      reactionResults.push(ms);
+      reactionLastLbl.textContent = String(ms);
+      if(reactionBestMs === null || ms < reactionBestMs){
+        reactionBestMs = ms;
+        reactionBestLbl.textContent = String(ms);
+      }
+      reactionMessage.textContent = ms + 'ms!';
+      setTimeout(nextReactionRound, 700);
+    }
+  });
+
+  function finishReactionTest(){
+    reactionScreen.hidden = true;
+    reactionEndScreen.hidden = false;
+
+    const avg = reactionResults.length ? Math.round(reactionResults.reduce((a,b)=>a+b,0)/reactionResults.length) : 0;
+    const best = reactionResults.length ? Math.min(...reactionResults) : 0;
+    const worst = reactionResults.length ? Math.max(...reactionResults) : 0;
+
+    reactionAvg.innerHTML = avg + '<span style="font-size:22px;">ms</span>';
+    reactionRating.textContent = avg <= 150 ? '프로게이머급 신경망! ⚡' : avg <= 230 ? '엄청나게 빨라요! 🔥' : '무난한 반응 속도 👍';
+    reactionStatBest.textContent = best + 'ms';
+    reactionStatWorst.textContent = worst + 'ms';
+    reactionStatFouls.textContent = reactionFouls + '회';
+
+    const maxMs = Math.max(500, ...reactionResults);
+    reactionBars.innerHTML = '';
+    reactionResults.forEach((ms, i) => {
+      const row = document.createElement('div');
+      row.className = 'reaction-bar-row';
+      const widthPct = Math.max(8, Math.round((ms/maxMs)*100));
+      row.innerHTML = `<span class="r-lbl">R${i+1}</span><span class="r-track"><span class="r-fill" style="width:${widthPct}%;"></span></span><span class="r-val">${ms}ms</span>`;
+      reactionBars.appendChild(row);
+    });
+  }
+
+  reactionRetryBtn.addEventListener('click', startReactionTest);
+  reactionHomeBtn.addEventListener('click', () => {
+    clearTimeout(reactionTimeoutHandle);
+    reactionEndScreen.hidden = true;
+    startScreen.hidden = false;
+  });
+})();
+</script>
+</body>
+</html>
