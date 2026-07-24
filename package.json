@@ -1,9 +1,22 @@
 {
-  "name": "seou-acne-game",
+  "name": "stitch-io-app",
   "version": "1.0.0",
-  "private": true,
-  "description": "서우 여드름 짜기 챌린지 - Gemini API로 여드름을 생성하는 웹 게임",
-  "engines": {
-    "node": ">=18"
+  "description": "Stitch.io Web Application Repository",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "stitch",
+    "workflow",
+    "landing-page",
+    "tailwind",
+    "express"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
   }
 }
